@@ -22,9 +22,18 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    passwordLengthController.text = currentValue.toString();
+    super.initState();
+  }
+
   bool box1 = false;
   bool box2 = false;
   bool box3 = false;
+  int currentValue = 8;
+  TextEditingController passwordLengthController = TextEditingController();
+  ScrollController scrollController = ScrollController();
   // List<bool> categoryValue = [];
 
   List<String> options = ["Numbers", "Characters", "Special Characters"];
@@ -40,7 +49,8 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
               onPressed: () {
                 void fuction() async {
                   if (mounted) {
-                    await Provider.of<DbClass>(context,listen: false).clearDatabase();
+                    await Provider.of<DbClass>(context, listen: false)
+                        .clearDatabase();
                     Navigator.pop(context);
                   }
                 }
@@ -114,6 +124,70 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                             });
                           }),
                     ),
+                    Row(
+                      children: <Widget>[
+                        const SizedBox(
+                          width: 18,
+                        ),
+                        const Text(
+                          "Password Length   : ",
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w400),
+                        ),
+                        const SizedBox(
+                          width: 60,
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: TextFormField(
+                              decoration: const InputDecoration(
+                                  hintText: "password length"),
+                              controller: passwordLengthController,
+                              keyboardType: TextInputType.none
+                              ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            MaterialButton(
+                              minWidth: 5.0,
+                              child: const Icon(Icons.arrow_drop_up),
+                              onPressed: () {
+                                currentValue =
+                                    int.parse(passwordLengthController.text);
+                                setState(() {
+                                  if (currentValue < 20) {
+                                    currentValue++;
+                                    passwordLengthController.text =
+                                        (currentValue).toString();
+                                  } // incrementing value
+                                });
+                              },
+                            ),
+                            MaterialButton(
+                              minWidth: 5.0,
+                              child: const Icon(Icons.arrow_drop_down),
+                              onPressed: () {
+                                int currentValue =
+                                    int.parse(passwordLengthController.text);
+                                setState(() {
+                                  if (currentValue > 8) {
+                                    currentValue--;
+                                    passwordLengthController.text =
+                                        (currentValue).toString();
+                                  } // decrementing value
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+
+                        // const Spacer(
+                        //   flex: 3,
+                        // )
+                      ],
+                    ),
                     SizedBox(
                         width: width / 1.1,
                         child: ElevatedButton(
@@ -134,6 +208,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                                 final password = generatePassword(
                                     isNumber: box1,
                                     isSpecial: box3,
+                                    lengthofPassword: currentValue,
                                     letter: box2);
                                 randomPasswordController.text = password;
                                 DateTime date = DateTime.now();
@@ -161,6 +236,8 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                           child: Text("Empty History!"),
                         )
                       : ListView.separated(
+                          shrinkWrap: true,
+                          controller: scrollController,
                           separatorBuilder: (context, index) => const Divider(),
                           itemCount: value.historList.length,
                           itemBuilder: (context, index) => Slidable(
@@ -183,22 +260,21 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                               children: [
                                 SlidableAction(
                                   borderRadius: BorderRadius.circular(7),
-                                  onPressed: (context) {
-                                     
-                                    void function()async{
-                                     await  Provider.of<DbClass>(context,listen: false)
-                                            .deletePassword(
-                                                value.historList[index].id!);
-                                        
-                                       if(mounted){ Navigator.pop(context);}
-                                      
-                                    }
-
-                                    mydialog(
-                                        context,
-                                        "Delete Password",
-                                        "Do You Want To Detele This?",
-                                        function);
+                                  onPressed: (context) async {
+                                    await Provider.of<DbClass>(context,
+                                            listen: false)
+                                        .deletePassword(
+                                            value.historList[index].id!);
+                                    // void function() async {
+                                    //   if (mounted) {
+                                    //     Navigator.pop(context);
+                                    //   }
+                                    // }
+                                    // mydialog(
+                                    //     context,
+                                    //     "Delete Password",
+                                    //     "Do You Want To Detele This?",
+                                    //     function);
                                   },
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
@@ -208,6 +284,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                               ],
                             ),
                             child: ListTile(
+                              subtitle: Text(value.historList[index].time),
                               title: Text(value.historList[index].password),
                               trailing: IconButton(
                                   onPressed: () {
@@ -246,8 +323,8 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
               },
               child: const Text("No")),
           ElevatedButton(
-              onPressed: ()async {
-               await yesClick();
+              onPressed: () async {
+                await yesClick();
               },
               child: const Text("Yes")),
         ],
@@ -259,8 +336,9 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
     bool letter = true,
     bool isNumber = true,
     bool isSpecial = true,
+    int? lengthofPassword,
   }) {
-    const length = 20;
+    int length = lengthofPassword!;
     const letterLowerCase = "abcdefghijklmnopqrstuvwxyz";
     const letterUpperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const number = '0123456789';
@@ -273,6 +351,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
 
     return List.generate(length, (index) {
       final indexRandom = Random.secure().nextInt(chars.length);
+
       return chars[indexRandom];
     }).join('');
   }

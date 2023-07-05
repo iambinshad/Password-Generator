@@ -56,27 +56,26 @@ class _MapScreenState extends State<MapScreen> {
       context: context,
       builder: (context) {
         return Container(
-          height: 600,
+          height: 900,
           color: Colors.red,
           child: Center(
-            child: Container(
-              child: OpenStreetMapSearchAndPick(
-                  onGetCurrentLocationPressed: fetchCurrentLocation,
-                  center: LatLong(latitude, longitude),
-                  buttonColor: Colors.blue,
-                  buttonText: 'Set Current Location',
-                  onPicked: (pickedData) {
-                    
+            child: OpenStreetMapSearchAndPick(
 
-                    Navigator.pop(context);
+                onGetCurrentLocationPressed: fetchCurrentLocation,
+                center: LatLong(latitude, longitude),
+                buttonColor: Colors.teal,
+                buttonText: 'Set Current Location',
+                onPicked: (pickedData) {
+                  
 
-                    setState(() {
-                      locationAddress = pickedData.address;
-                      latitude = pickedData.latLong.latitude;
-                      longitude = pickedData.latLong.longitude;
-                    });
-                  }),
-            ),
+                  Navigator.pop(context);
+
+                  setState(() {
+                    locationAddress = pickedData.address;
+                    latitude = pickedData.latLong.latitude;
+                    longitude = pickedData.latLong.longitude;
+                  });
+                }),
           ),
         );
       },
