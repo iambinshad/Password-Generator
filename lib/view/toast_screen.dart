@@ -1,10 +1,11 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:methodchannelprojects/view/map_scrn.dart';
+import 'package:methodchannelprojects/view/password_generator.dart';
 
 class ToastScreen extends StatefulWidget {
-  ToastScreen({super.key});
+  const ToastScreen({super.key});
 
   static const batteryChannel = MethodChannel("BatteryChannel");
 
@@ -16,13 +17,15 @@ class _ToastScreenState extends State<ToastScreen> {
   var channel = const MethodChannel("ShowToast");
 
   showToast() {
-    channel.invokeMethod("showToast");//this method call method in mainActivity class methods
+    channel.invokeMethod(
+        "showToast"); //this method call method in mainActivity class methods
   }
 
   showCharge() async {
     final argument = {'name': "Binshad"};
-    final int newBatterLevel =
-        await ToastScreen.batteryChannel.invokeMethod('getBattery', argument);//this method call method in mainActivity class methods
+    final int newBatterLevel = await ToastScreen.batteryChannel.invokeMethod(
+        'getBattery',
+        argument); //this method call method in mainActivity class methods
     setState(() {
       chargeState = newBatterLevel.toString();
     });
@@ -41,10 +44,27 @@ class _ToastScreenState extends State<ToastScreen> {
             Center(
                 child: ElevatedButton(
                     onPressed: showToast, child: const Text("Show Toast"))),
-                    
             Text(chargeState),
             ElevatedButton(
-                onPressed: showCharge, child: const Text("show charge"))
+                onPressed: showCharge, child: const Text("show charge")),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PasswordGeneratorScreen(),
+                      ));
+                },
+                child: const Text("Password Generator page")),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => MapScreen(),));
+                  // NotificationApi.showNotification(
+                  //     "Mohammed Binshad",
+                  //     "Hey! Do we have everything we need for the lunch",
+                  //     "Binshad.app");
+                },
+                child: const Text("Simple Notification"))
           ],
         ),
       ),
