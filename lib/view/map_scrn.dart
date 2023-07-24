@@ -14,9 +14,6 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-
-
-
   LocationPermission? permission;
 
   String locationAddress = 'Pick a Address';
@@ -25,12 +22,12 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp)async {
-       permission = await Geolocator.requestPermission();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      permission = await Geolocator.requestPermission();
     });
     return Scaffold(
         appBar: AppBar(
-          title:const Text("data"),
+          title: const Text("data"),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -60,14 +57,11 @@ class _MapScreenState extends State<MapScreen> {
           color: Colors.red,
           child: Center(
             child: OpenStreetMapSearchAndPick(
-
                 onGetCurrentLocationPressed: fetchCurrentLocation,
                 center: LatLong(latitude, longitude),
                 buttonColor: Colors.teal,
                 buttonText: 'Set Current Location',
                 onPicked: (pickedData) {
-                  
-
                   Navigator.pop(context);
 
                   setState(() {
@@ -82,14 +76,11 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-   Future<LatLng> fetchCurrentLocation() async {
+  Future<LatLng> fetchCurrentLocation() async {
     try {
-
       LatLng position = await getCurrentLocation();
-      // log(position.latitude.toString());
-      // log(position.longitude.toString());
+
       setState(() {
-        
         currentLocation =
             'Latitude:${position.latitude}longitude${position.longitude}';
       });
@@ -98,37 +89,34 @@ class _MapScreenState extends State<MapScreen> {
       setState(() {
         currentLocation = 'Error : $e';
       });
-      
     }
     return LatLng(23, 86);
   }
 
- Future<LatLng> getCurrentLocation() async {
-  bool serviceEnabled;
-  // LocationPermission permission;
+  Future<LatLng> getCurrentLocation() async {
+    bool serviceEnabled;
+    // LocationPermission permission;
 
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    return Future.error('Location services are disabled.');
-  }
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.deniedForever) {
-    return Future.error('Location permissions are permanently denied.');
-  }
-
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
-      return Future.error('Location permissions are denied.');
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
     }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return Future.error('Location permissions are denied.');
+      }
+    }
+
+    // Fetch the current location
+    Position position = await Geolocator.getCurrentPosition();
+    return LatLng(position.latitude, position.longitude);
   }
-
-  // Fetch the current location
-  Position position = await Geolocator.getCurrentPosition();
-  return LatLng(position.latitude, position.longitude);
 }
-
-}
-
-
